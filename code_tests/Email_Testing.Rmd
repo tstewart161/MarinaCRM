@@ -1,0 +1,117 @@
+---
+title: "Email Testing"
+author: "Collin Henley"
+date: "August 27, 2019"
+output: pdf_document
+---
+
+
+```{r}
+
+library("mailR")
+```
+
+
+
+```{r}
+
+send.mail(from = "collinhenley24@gmail.com",
+          to = c("collinhenley24@gmail.com"),
+          #replyTo = c("Reply to someone else <someone.else@gmail.com>"),
+          subject = "Subject of the email",
+          body = "Body of the email",
+          smtp = list(host.name = "smtp.gmail.com", port = 465, user.name = "collinhenley24@gmail.com", passwd = "Bumpass2041170!", ssl = TRUE),
+          authenticate = TRUE,
+          send = TRUE,
+          debug = TRUE)
+
+
+
+```
+
+
+
+```{r}
+for (i in 1:length(5)) {
+  
+  
+  subject <- "Hello"
+  msg <- "Nothing"
+  sender <- "collinhenley24@gmail.com"
+  recipients <- "collinhenley24@gmail.com"
+  # path <- parseFilePaths(volumes, input$file)
+  # fileName <-   shinyDirChoose(input, 'dir', roots = c(home = '~'), filetypes = c('pdf', 'html'))
+  send.mail(from = sender,
+            to = recipients,
+            subject = subject,
+            body = msg,
+            #body,
+            #attach.files = path$datapath,#file.path(folder, fileName),
+            # attach.files = path$datapath,
+            # attach.files  = c("./my-report.pdf"),
+            #file.names = c("Download my-report.pdf"),
+            # file.names = path$name,
+            smtp = list(host.name = "smtp.gmail.com", port = 465,
+                        user.name=sender, passwd="Bumpass2041170!", ssl=TRUE),
+            authenticate = TRUE,
+            send = TRUE)
+  
+}
+
+```
+
+
+
+
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

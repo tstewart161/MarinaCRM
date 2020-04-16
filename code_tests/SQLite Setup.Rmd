@@ -1,0 +1,28 @@
+---
+title: "SQLite Play"
+output: html_document
+---
+
+
+
+
+```{r}
+library(dplyr)
+# library("RSQLite")
+library(DBI)
+```
+
+```{r}
+mydb <- dbConnect(RSQLite::SQLite(), "dcm.sqlite")
+
+```
+
+
+
+```{r}
+
+
+
+
+```
+

@@ -1,0 +1,129 @@
+---
+title: "my-example-report"
+output: pdf_document
+params:
+  input1: Default Value for 1
+  input2: Default Value for 2
+  input3: 10
+
+---
+
+
+
+```{r libraries}
+# libraries for the document manipulation
+# library(WordR)
+# library(ReporteRs)
+library(officer)
+
+
+
+```
+
+
+```{r reading the doc}
+output_doc <- officer::read_docx("Boat Rental Reservation.docx")
+
+```
+
+
+
+The code below grabs basic info and replaces it in the word document
+```{r Basic Rental Info}
+
+# the length of the rental\
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "Day_type",new_value = "Single")
+
+# the Dates reserved for
+# for a multiday, this will have to have an if statement to 
+# determine if a paste is necessary
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "The_Reserved_Date",new_value = "12/03/2020")
+
+
+# today's date
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "date_made",new_value = as.character(Sys.Date()))
+
+# the DCM agent that made the reservation (initials only)
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "agent_made",new_value = "CCH")
+
+```
+
+
+```{r personal information}
+# full name of customer
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "customer_full_name",new_value = "Henley, Collin")
+
+# the address of the customer
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "address_for_customer",new_value = "12000 Sycamore Shoals Dr. Bumpass, Va.")
+
+# the home telephone
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "home_phone",new_value = "540-895-4042")
+
+# the cell phone number
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "cell_phone",new_value = "540-872-6378")
+
+# the email of the customer
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "CUSTOMER_EMAIL",new_value = "collinhenley24@gmail.com")
+
+
+```
+
+```{r rental day information}
+
+# boat that they rented
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "boat_number",new_value = "2")
+
+# max number of people allowed on the boat
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "max_people_allowed",new_value = "10")
+
+# other?????
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "other_thing",new_value = "What the hell is this")
+
+# tube pricing
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "tube_price", new_value = "$35")
+
+# the DCM agent will fill out the amount of tube vests
+
+# the rental fee
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "RENTAL_FEE",new_value = "$365.00")
+
+# the rental deposit
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "rental_deposit",new_value = "$182.50")
+
+# will not put anything down for the extra fees that may occur
+
+# time due in
+output_doc <- officer::body_replace_all_text(x = output_doc,old_value = "time_due_in",new_value = "4:30")
+
+```
+
+
+
+```{r Outputting the document}
+# outputting the document to a word file
+print(output_doc, target = "TESTING_Rental_Boats.docx")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

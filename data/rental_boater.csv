@@ -1,0 +1,4 @@
+rental_id,email,rb_id,rb_number,start_rental_date,end_rental_date,time_slot,total_price,deposit,tube,tube_price,multiday,cancelled
+1,collinhenley24@gmail.com,1,1,2020-03-26,2020-03-26,8:30 - 4:30,300,150,0,0,0,0
+2,mjmills@ps4.com,3,3,2020-03-28,2020-03-28,9:30 - 5:30,350,175,No,25,0,0
+3,mikemantell@gmail.com,5,5,2020-04-16,2020-04-16,9:00 - 5:00,300,150,No,25,0,0

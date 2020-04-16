@@ -1,0 +1,59 @@
+---
+title: "Data Base Testing"
+author: "Collin Henley"
+date: "4/2/2020"
+output: pdf_document
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r libraries}
+library(DBI)
+library(RMySQL)
+library(RPostgres)
+```
+
+
+```{r testing connection}
+con <- dbConnect(drv = RPostgres::Postgres(),
+                 user = "postgres",
+                 password = "Henley90113",
+                 host     = "dcmbetterbusiness.cb2xjkddg09t.us-east-1.rds.amazonaws.com", 
+                 port     = 5432, 
+                 dbname   = "dcmbetterbusiness")
+```
+
+
+```{r}
+
+
+
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+

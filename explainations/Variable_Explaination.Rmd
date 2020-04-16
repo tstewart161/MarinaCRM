@@ -1,0 +1,166 @@
+---
+title: "Variable Descriptions"
+output: pdf_document
+---
+
+
+This file is simply met to keep track of all of the variables that are in the code.
+
+
+
+input$
+input$
+
+Welcome Page
+Creditenial
+username: employee's username
+password: employee's password
+
+Renter
+length_of_rental: either single or multiday rental
+
+exclusive to length_of_rental = 'single'
+	amount_of_people: select the amount size of the boat that you want
+	dates_of_rental: select a single date
+	len_day: full or half day
+	boat_to_rent_single: automattically comes up with boat numbers that are available, user selects one
+
+
+
+
+
+exclusive to length_of_rental = 'multi'
+	dates_of_rental_multi: starting and ending dates
+	size_to_rent_multi: you select the size that you would like to rent
+
+
+check availability button: checks to see what boats are available for that day, gives multiday a table output
+
+first_name_rental_boater: the first name of the renter
+last_name_rental_boater: the last name of the renter
+email_rental_boater: the email of the rental boater
+phone_rental_boater: the phone number of the rental boater
+address_rental_boater: the address of the rental boater
+time_slot: time slot that the boater should have
+
+
+tube_rental: yes or no if they want a tube
+cost_of_tube: employee puts the price of the tub rental in
+
+
+confirm_rental_button:
+	confirms the rental for both multiday and single day. Will describe both processess in detail later.
+
+
+
+
+
+
+
+Camper
+
+Service
+
+Calendar View
+
+Cancelation
+
+Edit Fleet
+new_rental_number: the new rental boat number that is added to the fleet
+max_people: the max amount of people for this rental boat
+full_day_price_rental_addition: employee enters the price of this rental boat
+half_day_price_rental_addition: employee enters the price of this rental boat
+
+
+confirm_rental_addition:
+	action button that adds the boat to the fleet
+
+boat_to_remove: number of active boat to remove from the fleet
+confirm_boat_removal:
+	button that confirms the removal of this boat from the fleet
+
+broken_boat_number: # of broken down boat
+submit_broken_boat:
+	action button that submits the broken boat
+
+fixed_boat_number: # of boat that has been fixed
+confirm_fixed_boat:
+	confirm that the boat has been fixed
+
+
+
+DO NOT RENT
+do_not_rent_addition_email: email to put on the do not rent to list
+do_not_rent_addition_description: reason they are put on that list
+confirm_do_not_rent_addition: 
+	button that puts them on the do not rent to list
+
+do_not_rent_removal_email: email to remove from the do not rent to list
+confirm_do_not_rent_removal: confirm the removal of that person from the do not rent to list
+
+
+
+Email Send
+
+Create New Email
+Subscribed Customer Email
+
+Customer Map
+
+Customer Visualizations
+
+
+
+size_to_rent_multi: max amount of people for multiday rental
+
+
+active_boats: Boats that are currently able to be rented, and are not broken down
+
+broken_boats: Boats that are currently able to be rented, but are broken down
+
+rented_boats_for_multiday_length: contains the boats that are rented for the length of the multiday,
+                                  the max amount of people, and filtered to be consistent with the amount
+                                  of people that the user wants
+
+
+
+
+
+the_boat_for_multiday_rb_number: All boats that have this number will be moved during the duration that the multiday
+                                 boat is supposed to be rented will be moved. This is the number of the multiday that
+                                 is coming into the database
+
+the_boat_for_multiday_rb_id: same thing as above, just as the id number for that specific boat
+
+
+moveable_rented_boats: Boats that are rented for the iterated day within the multiday's for loop. 
+                       these boats have the same characteristics as the multiday. These boats need 
+                       the following criteria: must not be a multiday at any time during the multiday-to-rent's time period,
+                       must be the correct size
+
+
+
+
+```{r}
+m<-outer(1:20,1:20,function(x,y) sin(sqrt(x*y)/3))
+
+   redblue<-colorRampPalette(c("red","orange","blue"),method="linear")
+   filled.contour(m,color.palette=redblue)
+
+   yb<-colorRampPalette(c("yellow2","goldenrod","darkred"))
+   filled.contour(m,color.palette=yb)
+
+   yb<-colorRampPalette(c("yellow2","goldenrod","darkred"),bias=0.5)
+   filled.contour(m,color.palette=yb)
+
+   ## Two ColorBrewer sequential palettes
+   ylOrBn4<-c("#FFFFD4", "#FED98E", "#FE9929","#CC4C02")
+   ylGnBl5<-c("#FFFFCC","#C7E9B4","#7FCDBB","#40B6C4","#2C7FB8" ,"#253494")
+
+   ylOrBn<-colorRampPalette(ylOrBn4,method="linear")
+   ylGnBl<-colorRampPalette(ylGnBl5)
+   filled.contour(m,color.palette=ylOrBn)
+   filled.contour(m,color.palette=ylGnBl)
+```
+
+
