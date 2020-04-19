@@ -366,8 +366,21 @@ ui <- dashboardPage(
               h2("Rental Cancelation", align = "center"),
               h4("Active rentals", align = "left"),
               # active boats table
-              DT::dataTableOutput("cancelActiveRentalsTable")              
-             
+              
+              DT::dataTableOutput("cancelActiveRentalsTable"),
+              
+              selectInput(
+                inputId = "email_of_cancel",
+                label = "Email of renter to cancel",
+                choices = rental_boater$email
+              ),
+              # the date that they are going to cancel
+              dateInput(
+                inputId = "date_of_cancellation",
+                label = "Date slot of renter to cancel",
+                value = Sys.Date()
+              )
+              
                
       ),
       
@@ -1607,15 +1620,28 @@ server <- function(input, output, session) {
     fullcalendar(full_calendar_rental_data)
     })
   
-  # Cancelation page ----
+  
+  #### Cancelation page
+  rental_boater_display <- rental_boater %>%
+    select(email, start_rental_date, end_rental_date, time_slot)
+  
   output$cancelActiveRentalsTable = DT::renderDataTable({
-    rental_boater['rental_id'] && rental_boater['email']
+    rental_boater_display
   })
   
+  observeEvent(input$button, {
+    
+    # filter to get the rental boater that needs to be cancelled
+    cancel <- rental_boater %>% 
+      filter(start_date > sys.Date() & email == input$email_of_cancel)
+    
+    
+    # update the select input to have only that persons dates in it
+    updateSelectInput(session = session,
+                      inputid = "date_of_cancellation",
+                      choices = cancel$start)
   
-  
-  
-  
+  })
 }
 
 shinyApp(ui, server)
