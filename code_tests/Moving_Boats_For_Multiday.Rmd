@@ -1,0 +1,482 @@
+---
+title: "Moving Boats for Multiday"
+author: "Collin Henley"
+date: "4/17/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+# read the CSVs in
+rental_boater <- read.csv("C:/Users/Colli/OneDrive/Everything/Documents/dcm-better-business/data/rental_boater.csv")
+rental_boats <- read.csv("C:/Users/Colli/OneDrive/Everything/Documents/dcm-better-business/data/rental_boats.csv")
+
+
+
+# total amount of days for the rental
+      amount_of_days_for_rental <- input$dates_of_rental_multi[2] - input$dates_of_rental_multi[1]
+      
+      # getting the sequence of dates
+      seq_of_dates_for_rental <- seq(as.Date(input$dates_of_rental_multi[1]), by = "day", length.out = amount_of_days_for_rental)
+      
+      
+      
+      # get the boats that are rented between those dates
+      rented_boats_for_multiday_length <- rental_boater[rental_boater$start_rental_date <= input$dates_of_rental_multi[1] & rental_boater$end_rental_date <= input$dates_of_rental_multi[2] & rental_boater$cancelled == 0, ]
+      
+      
+      
+      # combine the dataset to get the max_people
+      # rented_boats_for_multiday_length now contains the records for those renters between those dates 
+      # and the max amount of people allowed
+      rented_boats_for_multiday_length <- left_join(x = rented_boats_for_multiday_length, y = rental_boats, by = c("rb_id","rb_number"))
+      
+      # filter based off of the boat size that was inputted eariler for multidays
+      # rented_boats_for_multiday_length will now contain the records of rentals between the input
+      # dates, the max amount of people for each boat, and filtered for the max people size
+      rented_boats_for_multiday_length <- rented_boats_for_multiday_length %>%
+        filter(max_people == input$size_to_rent_multi)
+      
+      # viewing the data
+      # this data contains all the boats that are rented during the multiday
+      rented_boats_for_multiday_length %>%
+        View("rented_boats_for_multiday_length")
+      
+      active_boats %>%
+        View("Active Boats")
+      
+      # first we need to check if there is a boat available the entire way through.
+      # to do this, we need to look to see if one of the boats of the correct size
+      # is available through the whole time
+      
+      
+      # need to find out if all of the boats of that size are taken
+      total_boats_for_size_requested <- active_boats %>%
+        filter(max_people == input$size_to_rent_multi)
+      
+      # need to see if there are any boats that are free
+      amount_of_boats_available_all_the_way_through <- length(setdiff(total_boats_for_size_requested$rb_number, rented_boats_for_multiday_length$rb_number))
+      
+      # this should be the amount of boats that are available from the date the rental was requested to the date that it ended
+      # amount_of_boats_available_all_the_way_through <- nrow(total_boats_for_size_requested) - nrow(rented_boats_for_multiday_length)
+      
+      message(paste0("The amount of boats that are available all the way through ", input$dates_of_rental_multi[1], " to ",input$dates_of_rental_multi[2], " is ",amount_of_boats_available_all_the_way_through))
+      
+      
+      total_boats_for_size_requested %>%
+        View("total_boats_for_size_requested before conditional")
+      
+      
+      rental_boater %>%
+        View("Check to see if there are wierd NAs here")
+      
+      
+      # check if it is of length 0
+      # if it is, that means that there are no boats available that are available through that entire selected time. fuck.
+
+```
+
+
+```{r}
+
+
+
+message("Fuck, there are no boats that are straight available.") # will need to select a boat to put them in
+message("Def gonna be the hardest part of the whole code")
+
+# plan:
+# 1. choose a boat to move the multiday in based on the following criteria:
+#    - Needs to not be a multiday at any time in the rental
+#    - Notice that in the table rental_boater, I have a column that says "multiday"
+#      use that to determine what boat they should be in initially
+# 2. create a for loop that goes through each day
+#    2a. find out if there is a boat already taken in that slot
+#    2b. if there is a boat already in that slot, select a slot that is open, and move 
+#        the single day boat that is in the way into that slot. Then, move the multiday 
+#        boat into that slot.
+#    2c. if there is not a boat already in that slot, then move the multiday there.
+# 3. update the rental_boaters table
+#    
+# NOTE: THE BOAT BEING MOVED CANNOT BE A MULTIDAY
+# I ADDED A VARIABLE CALLED "MULTIDAY" WHICH WILL HELP KEEP TRACK IF A BOAT IS A MULTIDAY
+
+
+# step 1
+# 1. choose a boat to move the multiday in based on the following criteria:
+#    - Needs to not be a multiday at any time in the rental
+#    - Notice that in the table rental_boater, I have a column that says "multiday"
+#      use that to determine what boat they should be in initially
+
+# first get the list of all the multiday renters
+multi_day_at_one_point <- rented_boats_for_multiday_length %>%
+  filter(multiday == 1)
+multi_day_at_one_point %>%
+  View("Multiday_at_one_point")
+
+
+# now get the list of the renters who are not multiday
+non_multiday_boats <- rented_boats_for_multiday_length %>%
+  filter(multiday == 0)
+
+# now compare the two to get boats that are never multiday
+never_multiday <- non_multiday_boats %>%
+  filter(rb_number %in% setdiff(non_multiday_boats$rb_number, multi_day_at_one_point$rb_number))
+
+# now to select the boat that we will put the multiday in
+# this also meanst that this is the boat that will have to move
+
+# the_boat_for_multiday <- never_multiday %>%
+#   filter(rb_number == min(never_multiday$rb_number))
+
+# now to get the rb_number and the rb_id that we will be changing
+the_boat_for_multiday_rb_number <- min(never_multiday$rb_number)#the_boat_for_multiday$rb_number
+the_boat_for_multiday_rb_id <- never_multiday$rb_id[match(the_boat_for_multiday_rb_number,never_multiday$rb_number)]#the_boat_for_multiday$rb_number
+message(paste0("We are going to put these people in boat number ",the_boat_for_multiday_rb_number," With the ID of ",the_boat_for_multiday_rb_id))
+
+
+# quick popup message that will say "all these boats are multiday!!"
+message("Checking to see if all the boats rented during this time are multiday")
+
+
+# I THINK I WILL NEED TO WRAP THE ELSE STATEMENT IN THE REST OF THE IF STATEMENTS, BECAUSE AS
+# IT STANDS, IT WILL STILL TRY TO PUT THEM IN A SPOT
+if (nrow(rented_boats_for_multiday_length) == 0) {
+  message("All the boats rented during this time are multidays. Cannot create the multiday")
+  sendSweetAlert(
+    session,
+    title = "Multiday Error!",
+    text = "Apparently there are no boats available that are not multiday"
+  )
+  
+} else {
+  message("Not all of the boats rented are multiday. It passed this check.")
+}
+
+
+
+
+
+
+
+# 2. create a for loop that goes through each day
+message("Creating the for loop to go through each day")
+for (day in 1:amount_of_days_for_rental) {
+  message("==================")
+  message(paste("Iteration for the Date",seq_of_dates_for_rental[day]))
+  
+  #    2a. find out if there is a boat already taken in that slot
+  
+  # first, we need to get all the boats that are rented for that date
+  rented_boats_for_multiday <- rental_boater[rental_boater$start_rental_date <= seq_of_dates_for_rental[day] & rental_boater$end_rental_date <= seq_of_dates_for_rental[day] & rental_boater$cancelled == 0, ]
+  
+  
+  
+  # further filter it to remove boats that are multidays in the future 
+  moveable_rented_boats <- rented_boats_for_multiday %>%
+    filter(multiday != 1)
+  
+  
+  # add the column max_people onto the dataframe to further filter it later
+  moveable_rented_boats <- merge(x = moveable_rented_boats, y = rental_boats[ , c("rb_id", "rb_number","max_people")], by = c("rb_id","rb_number"), all.x=TRUE)
+  
+  
+  # filter it to only include the correct size
+  moveable_rented_boats <- moveable_rented_boats %>%
+    filter(max_people == input$size_to_rent_multi)
+  
+  # now view the boats that have the potential to be moved
+  moveable_rented_boats %>%
+    View("Rented Boats for multiday: have ability to be moved")
+  # now we need to check if the boat is rented for that specific day
+  message("Finding out if there is a boat already in that slot...")
+  if (the_boat_for_multiday_rb_number %in% rented_boats$rb_number) {
+    
+    available_boats <- moveable_rented_boats
+    
+    message("That specific boat number is rented, we will need to move it to another boat that is not taken for that day!")
+    # first find their rental_id
+    renter_to_move_out <- available_boats %>%
+      filter(rb_number == the_boat_for_multiday_rb_number)
+    
+    rental_id_to_move_out <- rental_id_to_move_out_df$rental_id
+    
+    
+    # then find out where to move them into
+    # find the minimum available number to move that boat
+    # need to get the boats that are online and not rented for that day and fit the size
+    never_multiday %>%
+      View("Never Multiday")
+    # message(paste("The boats that are not rented during this time:",total_boats_for_size_requested$rb_number))
+    # free_boats <- setdiff(total_boats_for_size_requested$rb_number %>% rented_boats$rb_id)
+    
+    
+    available_boats_to_move %>%
+      View("available_boats_to_move inside for loop")
+    
+    rented_boats %>%
+      View("rented_boats inside for loop")
+    
+    
+    # now to find the minimum boat available
+    rb_id_to_move_into <- min(available_boats_to_move$rb_id)
+    
+    # based on the lowest rb_id, get the position where the rb_number_to_move is
+    rb_number_to_move_into <- available_boats_to_move$rb_number[match(rental_id_to_move_out,available_boats_to_move$rb_id)]
+    
+    
+    message(paste0("We are going to move the boat ID that was ",rental_id_to_move_out," to the rental boat ID: ",rb_id_to_move_into))
+    
+    # now to move them from their original boat to their boat now
+    # match the rental ID with the original database
+    index_for_moved_renter <- match(rental_id_to_move_into,rental_boater$rental_id)
+    
+    # moving them to their new boat
+    rental_boater$rb_id[index_for_moved_renter] <<- rb_id_to_move_into
+    rental_boater$rb_number[index_for_moved_renter] <<- rb_number_to_move_into
+    
+    # ensure that we keep track of the change
+    rental_boater$moved[index_for_moved_renter] <<- 1
+    
+    
+    
+    
+    
+    
+    
+  } else {
+    # 2b. if there is a boat already in that slot, select a slot that is open, and move 
+    #        the single day boat that is in the way into that slot. Then, move the multiday 
+    #        boat into that slot.
+    message("That boat is not taken for that day, so we do not need to move anything")
+    
+  }
+}
+# 
+# now that we have gone through and moved all the boats out of the way, 
+# we will now put the muliday into that spot
+# this if statement should never fail, but just in case,
+# we will add an if statement to makes sure that there is not another multiday in it's spot
+# to do this if statement, we will grab all the boats that are rented between those dates,
+# and then we will test to see if the number for that rented boat is in that slot already
+rented_boats_for_multiday_length <- rental_boater[rental_boater$start_rental_date <= input$dates_of_rental_multi[1] & rental_boater$end_rental_date <= input$dates_of_rental_multi[2] & rental_boater$cancelled == 0, ]
+
+message("Unsure if this test should be here or what it does but here it goes:")
+message("Testing to see if there are any multiday boats in the future of this multiday")
+if (the_boat_for_multiday_rb_number %in% unique(rented_boats_for_multiday_length$rb_number)) {
+  sendSweetAlert(
+    session,
+    title = "Error, this boat is rented!",
+    text = "This should not be happening, this boat is rented after we already tried to move it",
+    type = "error"
+  )
+  message("RED ALERT: The boats did not move around correctly, and therefor it is not going to work")
+  
+} else{
+  message(paste0("There are no multiday boats in the future for boat number ",the_boat_for_multiday_rb_number))
+  message("We can go ahead and put this person in this rentalboat for this day")
+  # matching 
+  multi_index_rb <- match(rb_id_to_move_into,rental_boats$rb_id)
+  
+  # calculating the final price for the renter
+  # if greater than 5, then 10% discount
+  if (amount_of_days_for_rental >= 5) {
+    # the price for a single day * the amount of days for the rental * 90%
+    total_price <- rental_boats$full_day_price[multi_index_rb]*amount_of_days_for_rental*0.90
+    
+  } else {
+    # regular price
+    total_price <- rental_boats$full_day_price[multi_index_rb]
+    
+  }
+  
+  
+  # now we get to add the row to our dataframe
+  
+  
+  rental_boater <<- rental_boater %>% 
+    add_row(rental_id = length(rental_boater$rb_id) + 1,
+            email = input$email_rental_boater,
+            rb_id = rb_id_to_move_into,
+            phone_number_rental = input$phone_rental_boater,
+            start_rental_date = input$dates_of_rental_multi[1],
+            end_rental_date = input$dates_of_rental_multi[2],
+            time_slot = input$time_slot,
+            rb_number = rb_number_to_move_into,
+            total_price = total_price ,
+            deposit = total_price/2,
+            tube = input$tube_rental,
+            tube_price = input$cost_of_tube,
+            multiday = 1,
+            cancelled = 0,
+            moved = 0
+    )
+  
+  message("The multiday boat was added to the dataframe")
+  
+  write_csv(rental_boater, "data/rental_boater.csv")
+  message("Wrote to the database")
+  
+  sendSweetAlert(
+    session,
+    title = "Difficult Multiday Success!!",
+    text = "The multiday has been added. Some boats were moved in the process of doing so",
+    type = "success"
+  )
+  
+  # declaring the variable that will be used as the rental boat number 
+  # with the officer package to create the word document that is then
+  # saved to the local computer
+  rental_boat_number_rented <- input$boat_to_rent_single
+  
+  
+}
+
+
+
+
+
+
+
+```
+
+
+
+
+
+
+```{r}
+for (day in 1:amount_of_days_for_rental) {
+  message("==================")
+  message(paste("Iteration for the Date",seq_of_dates_for_rental[day]))
+  
+  #    2a. find out if there is a boat already taken in that slot
+  
+  # first, we need to get all the boats that are rented for that date
+  rented_boats_for_multiday <- rental_boater[rental_boater$start_rental_date <= seq_of_dates_for_rental[day] & rental_boater$end_rental_date <= seq_of_dates_for_rental[day] & rental_boater$cancelled == 0, ]
+  
+  
+  
+  # further filter it to remove boats that are multidays in the future 
+  moveable_rented_boats <- rented_boats_for_multiday %>%
+    filter(multiday != 1)
+  
+  
+  # add the column max_people onto the dataframe to further filter it later
+  moveable_rented_boats <- merge(x = moveable_rented_boats, y = rental_boats[ , c("rb_id", "rb_number","max_people")], by = c("rb_id","rb_number"), all.x=TRUE)
+  
+  
+  # filter it to only include the correct size
+  moveable_rented_boats <- moveable_rented_boats %>%
+    filter(max_people == input$size_to_rent_multi)
+  
+  # now view the boats that have the potential to be moved
+  moveable_rented_boats %>%
+    View("Rented Boats for multiday: have ability to be moved")
+  # now we need to check if the boat is rented for that specific day
+  message("Finding out if there is a boat already in that slot...")
+  if (the_boat_for_multiday_rb_number %in% rented_boats$rb_number) {
+    
+    available_boats <- moveable_rented_boats
+    
+    message("That specific boat number is rented, we will need to move it to another boat that is not taken for that day!")
+    # first find their rental_id
+    renter_to_move_out <- available_boats %>%
+      filter(rb_number == the_boat_for_multiday_rb_number)
+    
+    rental_id_to_move_out <- rental_id_to_move_out_df$rental_id
+    
+    
+    # then find out where to move them into
+    # find the minimum available number to move that boat
+    # need to get the boats that are online and not rented for that day and fit the size
+    never_multiday %>%
+      View("Never Multiday")
+    # message(paste("The boats that are not rented during this time:",total_boats_for_size_requested$rb_number))
+    # free_boats <- setdiff(total_boats_for_size_requested$rb_number %>% rented_boats$rb_id)
+    
+    
+    available_boats_to_move %>%
+      View("available_boats_to_move inside for loop")
+    
+    rented_boats %>%
+      View("rented_boats inside for loop")
+    
+    
+    # now to find the minimum boat available
+    rb_id_to_move_into <- min(available_boats_to_move$rb_id)
+    
+    # based on the lowest rb_id, get the position where the rb_number_to_move is
+    rb_number_to_move_into <- available_boats_to_move$rb_number[match(rental_id_to_move_out,available_boats_to_move$rb_id)]
+    
+    
+    message(paste0("We are going to move the boat ID that was ",rental_id_to_move_out," to the rental boat ID: ",rb_id_to_move_into))
+    
+    # now to move them from their original boat to their boat now
+    # match the rental ID with the original database
+    index_for_moved_renter <- match(rental_id_to_move_into,rental_boater$rental_id)
+    
+    # moving them to their new boat
+    rental_boater$rb_id[index_for_moved_renter] <<- rb_id_to_move_into
+    rental_boater$rb_number[index_for_moved_renter] <<- rb_number_to_move_into
+    
+    # ensure that we keep track of the change
+    rental_boater$moved[index_for_moved_renter] <<- 1
+    
+    
+    
+    
+    
+    
+    
+  } else {
+    # 2b. if there is a boat already in that slot, select a slot that is open, and move 
+    #        the single day boat that is in the way into that slot. Then, move the multiday 
+    #        boat into that slot.
+    message("That boat is not taken for that day, so we do not need to move anything")
+    
+  }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

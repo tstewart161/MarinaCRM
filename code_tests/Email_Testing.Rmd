@@ -15,12 +15,12 @@ library("mailR")
 
 ```{r}
 
-send.mail(from = "collinhenley24@gmail.com",
-          to = c("collinhenley24@gmail.com"),
+send.mail(from = "better.business.apps@gmail.com",
+          to = c("chenley4@gmu.edu"),
           #replyTo = c("Reply to someone else <someone.else@gmail.com>"),
-          subject = "Subject of the email",
-          body = "Body of the email",
-          smtp = list(host.name = "smtp.gmail.com", port = 465, user.name = "collinhenley24@gmail.com", passwd = "Bumpass2041170!", ssl = TRUE),
+          subject = "Testing in R",
+          body = "Testing this out",
+          smtp = list(host.name = "smtp.gmail.com", port = 465, user.name = "better.business.apps", passwd = "BetterB12000", ssl = TRUE),
           authenticate = TRUE,
           send = TRUE,
           debug = TRUE)
@@ -63,14 +63,37 @@ for (i in 1:length(5)) {
 
 
 
-
+attempting to do this with the package gmailr
 ```{r}
+# library gmailr
+library(gmailr)
+
+# JSON creditentials
+use_secret_file("C:/Users/Colli/OneDrive/Everything/Documents/dcm-better-business/DCM_Emails/do_more_with_r.json")
 
 ```
 
 
 
 
+```{r}
+
+
+latest_msg <- "This is a test email using R. Hopefully it goes out"
+
+
+my_email_message <- mime() %>%
+  to("chenley4@gmu.edu") %>%
+  from("collinhenley24@gmail.com") %>%
+  subject(latest_msg)
+
+
+send_message(my_email_message)
+
+
+
+
+```
 
 
 

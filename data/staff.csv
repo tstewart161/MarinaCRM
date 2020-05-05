@@ -1,0 +1,6 @@
+staff_id,first_name,middle_initial,last_name,full_name,date_hired,date_left
+1,Judy,J,Jones,Judy Jones,2000-02-20,0
+2,Collin,C,Henley,Collin Henley,2012-08-19,0
+3,Chad,M,Henley,Chad Henley,2008-05-20,4/15/2020
+4,Casey,P,Henley,Casey Henley,2020-04-15,2020-04-17
+5,Thomas,J,Stewart,Thomas Stewart,2020-04-19,0

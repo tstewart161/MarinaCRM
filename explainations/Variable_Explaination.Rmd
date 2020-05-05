@@ -141,6 +141,28 @@ moveable_rented_boats: Boats that are rented for the iterated day within the mul
 
 
 
+
+=================================================
+manager page
+
+new_employee_first_name
+new_employee_middle_initial
+new_employee_last_name
+confirm_new_hire
+
+name_staff_leaving
+confirm_staff_leaving
+=================================================
+
+
+
+
+
+
+
+
+
+
 ```{r}
 m<-outer(1:20,1:20,function(x,y) sin(sqrt(x*y)/3))
 
@@ -162,5 +184,32 @@ m<-outer(1:20,1:20,function(x,y) sin(sqrt(x*y)/3))
    filled.contour(m,color.palette=ylOrBn)
    filled.contour(m,color.palette=ylGnBl)
 ```
+
+
+
+
+
+
+
+
+```{r}
+
+df
+
+"email","rental_id","name"
+
+
+df_1 <- df %>%
+  filter(name == "Jeff") %>%
+  select(email,rental_id)
+  
+df_1
+
+
+```
+
+
+
+
 
 
